@@ -11,7 +11,7 @@ This file DOES NOT load environment variables.
 Environment loading is handled by app/core/config.py.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # ============================================================
@@ -110,6 +110,47 @@ class HTTPSettings(ConfigModel):
 
 
 # ============================================================
+# Database Configuration
+# ============================================================
+
+
+class DatabaseSettings(ConfigModel):
+    """Database configuration."""
+
+    host: str
+    port: int
+    name: str
+    username: str
+    password: str
+
+    echo: bool
+
+    pool_size: int
+    max_overflow: int
+    pool_timeout: int
+    pool_recycle: int
+
+    @computed_field
+    @property
+    def url(self) -> str:
+        """
+        SQLAlchemy database connection URL.
+
+        Example:
+        postgresql+psycopg://postgres:password@localhost:5432/postgres
+        """
+
+        return (
+            f"postgresql+psycopg://"
+            f"{self.username}:"
+            f"{self.password}@"
+            f"{self.host}:"
+            f"{self.port}/"
+            f"{self.name}"
+        )
+
+
+# ============================================================
 # Root Settings
 # ============================================================
 
@@ -127,6 +168,7 @@ class Settings(BaseSettings):
     api: APISettings
     logging: LoggingSettings
     http: HTTPSettings
+    database: DatabaseSettings
 
     model_config = SettingsConfigDict(
         frozen=True,

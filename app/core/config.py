@@ -7,6 +7,7 @@ from app.core.settings import (
     AISettings,
     APISettings,
     ApplicationSettings,
+    DatabaseSettings,  # <-- Add this
     HTTPSettings,
     LoggingSettings,
     ServiceNowSettings,
@@ -98,6 +99,37 @@ def _load_settings() -> Settings:
         ),
     )
 
+    database = DatabaseSettings(
+        host=get_env("DB_HOST"),
+        port=get_env(
+            "DB_PORT",
+            cast=int,
+        ),
+        name=get_env("DB_NAME"),
+        username=get_env("DB_USERNAME"),
+        password=get_env("DB_PASSWORD"),
+        echo=get_env(
+            "DB_ECHO",
+            cast=bool,
+        ),
+        pool_size=get_env(
+            "DB_POOL_SIZE",
+            cast=int,
+        ),
+        max_overflow=get_env(
+            "DB_MAX_OVERFLOW",
+            cast=int,
+        ),
+        pool_timeout=get_env(
+            "DB_POOL_TIMEOUT",
+            cast=int,
+        ),
+        pool_recycle=get_env(
+            "DB_POOL_RECYCLE",
+            cast=int,
+        ),
+    )
+
     return Settings(
         application=application,
         ai=ai,
@@ -105,6 +137,7 @@ def _load_settings() -> Settings:
         api=api,
         logging=logging,
         http=http,
+        database=database,
     )
 
 
