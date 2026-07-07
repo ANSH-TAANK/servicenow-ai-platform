@@ -8,6 +8,8 @@ Purpose:
 
 from typing import Any
 
+from app.core.constants import APPLICATION_ERROR
+
 # ============================================================
 # Base Application Exception
 # ============================================================
@@ -24,7 +26,7 @@ class BaseApplicationException(Exception):
         self,
         message: str,
         *,
-        error_code: str = "APPLICATION_ERROR",
+        error_code: str = APPLICATION_ERROR,
         status_code: int = 500,
         details: Any | None = None,
     ) -> None:

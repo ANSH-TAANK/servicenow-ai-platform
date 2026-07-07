@@ -21,6 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.constants import (
     EMAIL_MAX_LENGTH,
     NAME_MAX_LENGTH,
+    PASSWORD_HASH_MAX_LENGTH,
     SERVICENOW_SYS_ID_LENGTH,
     TABLE_USERS,
     USERNAME_MAX_LENGTH,
@@ -89,6 +90,14 @@ class User(
         unique=True,
         nullable=False,
         index=True,
+    )
+    # ============================================================
+    # Authentication
+    # ============================================================
+
+    password_hash: Mapped[str] = mapped_column(
+        String(PASSWORD_HASH_MAX_LENGTH),
+        nullable=False,
     )
 
     # ============================================================

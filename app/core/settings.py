@@ -151,6 +151,25 @@ class DatabaseSettings(ConfigModel):
 
 
 # ============================================================
+# Security Configuration
+# ============================================================
+
+
+class SecuritySettings(ConfigModel):
+    """Security configuration."""
+
+    access_token_secret: str
+
+    refresh_token_secret: str
+
+    jwt_algorithm: str
+
+    access_token_expire_minutes: int
+
+    refresh_token_expire_days: int
+
+
+# ============================================================
 # Root Settings
 # ============================================================
 
@@ -169,6 +188,7 @@ class Settings(BaseSettings):
     logging: LoggingSettings
     http: HTTPSettings
     database: DatabaseSettings
+    security: SecuritySettings
 
     model_config = SettingsConfigDict(
         frozen=True,

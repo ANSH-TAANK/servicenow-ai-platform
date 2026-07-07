@@ -7,9 +7,10 @@ from app.core.settings import (
     AISettings,
     APISettings,
     ApplicationSettings,
-    DatabaseSettings,  # <-- Add this
+    DatabaseSettings,
     HTTPSettings,
     LoggingSettings,
+    SecuritySettings,
     ServiceNowSettings,
     Settings,
 )
@@ -18,7 +19,13 @@ from app.core.settings import (
 # Load Environment Variables
 # ============================================================
 
+ENV_FILE = os.getenv(
+    "ENV_FILE",
+    ".env",
+)
+
 load_dotenv(
+    dotenv_path=ENV_FILE,
     override=True,
 )
 
@@ -130,6 +137,20 @@ def _load_settings() -> Settings:
         ),
     )
 
+    security = SecuritySettings(
+        access_token_secret=get_env("ACCESS_TOKEN_SECRET"),
+        refresh_token_secret=get_env("REFRESH_TOKEN_SECRET"),
+        jwt_algorithm=get_env("JWT_ALGORITHM"),
+        access_token_expire_minutes=get_env(
+            "ACCESS_TOKEN_EXPIRE_MINUTES",
+            cast=int,
+        ),
+        refresh_token_expire_days=get_env(
+            "REFRESH_TOKEN_EXPIRE_DAYS",
+            cast=int,
+        ),
+    )
+
     return Settings(
         application=application,
         ai=ai,
@@ -138,6 +159,7 @@ def _load_settings() -> Settings:
         logging=logging,
         http=http,
         database=database,
+        security=security,
     )
 
 
