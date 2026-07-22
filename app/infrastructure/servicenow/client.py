@@ -15,6 +15,9 @@ from app.exceptions.servicenow import ServiceNowAPIError, ServiceNowAuthenticati
 from app.infrastructure.servicenow.constants import (
     DEFAULT_HEADERS,
     DEFAULT_TIMEOUT,
+    HTTP_DELETE,
+    HTTP_GET,
+    HTTP_PATCH,
     HTTP_POST,
 )
 from app.infrastructure.servicenow.endpoints import INCIDENT
@@ -65,7 +68,9 @@ class ServiceNowClient:
         self,
         method: str,
         endpoint: str,
+        *,
         json: dict | None = None,
+        params: dict[str, str] | None = None,
     ) -> httpx.Response:
         """
         Execute an HTTP request to ServiceNow.
@@ -82,6 +87,7 @@ class ServiceNowClient:
                 method=method,
                 url=endpoint,
                 json=json,
+                params=params,
             )
 
         except httpx.TimeoutException as exc:
@@ -110,6 +116,83 @@ class ServiceNowClient:
         return response
 
     # ============================================================
+    # HTTP GET
+    # ============================================================
+
+    def get(
+        self,
+        endpoint: str,
+        *,
+        params: dict[str, str] | None = None,
+    ) -> httpx.Response:
+        """
+        Execute an HTTP GET request.
+        """
+
+        return self._request(
+            method=HTTP_GET,
+            endpoint=endpoint,
+            params=params,
+        )
+
+    # ============================================================
+    # HTTP POST
+    # ============================================================
+
+    def post(
+        self,
+        endpoint: str,
+        *,
+        json: dict | None = None,
+    ) -> httpx.Response:
+        """
+        Execute an HTTP POST request.
+        """
+
+        return self._request(
+            method=HTTP_POST,
+            endpoint=endpoint,
+            json=json,
+        )
+
+    # ============================================================
+    # HTTP PATCH
+    # ============================================================
+
+    def patch(
+        self,
+        endpoint: str,
+        *,
+        json: dict | None = None,
+    ) -> httpx.Response:
+        """
+        Execute an HTTP PATCH request.
+        """
+
+        return self._request(
+            method=HTTP_PATCH,
+            endpoint=endpoint,
+            json=json,
+        )
+
+    # ============================================================
+    # HTTP DELETE
+    # ============================================================
+
+    def delete(
+        self,
+        endpoint: str,
+    ) -> httpx.Response:
+        """
+        Execute an HTTP DELETE request.
+        """
+
+        return self._request(
+            method=HTTP_DELETE,
+            endpoint=endpoint,
+        )
+
+    # ============================================================
     # Incident Operations
     # ============================================================
 
@@ -123,8 +206,7 @@ class ServiceNowClient:
 
         logger.info("Creating ServiceNow incident.")
 
-        response = self._request(
-            method=HTTP_POST,
+        response = self.post(
             endpoint=INCIDENT,
             json=incident.model_dump(
                 exclude_none=True,

@@ -30,15 +30,22 @@ def register_exception_handlers(app: FastAPI) -> None:
         Handle all custom application exceptions.
         """
 
+        content = {
+            "success": False,
+            "error": {
+                "code": exc.error_code,
+                "message": exc.message,
+            },
+        }
+
+        if exc.details is not None:
+            content.update(
+                exc.details,
+            )
+
         return JSONResponse(
             status_code=exc.status_code,
-            content={
-                "success": False,
-                "error": {
-                    "code": exc.error_code,
-                    "message": exc.message,
-                },
-            },
+            content=content,
         )
 
     @app.exception_handler(Exception)

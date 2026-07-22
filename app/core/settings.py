@@ -170,6 +170,23 @@ class SecuritySettings(ConfigModel):
 
 
 # ============================================================
+# Email Configuration
+# ============================================================
+
+
+class EmailSettings(ConfigModel):
+    """Email provider configuration."""
+
+    provider: str
+
+    resend_api_key: str
+
+    from_name: str
+
+    from_email: str
+
+
+# ============================================================
 # Root Settings
 # ============================================================
 
@@ -189,6 +206,7 @@ class Settings(BaseSettings):
     http: HTTPSettings
     database: DatabaseSettings
     security: SecuritySettings
+    email: EmailSettings
 
     model_config = SettingsConfigDict(
         frozen=True,

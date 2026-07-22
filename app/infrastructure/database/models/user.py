@@ -23,6 +23,7 @@ from app.core.constants import (
     NAME_MAX_LENGTH,
     PASSWORD_HASH_MAX_LENGTH,
     SERVICENOW_SYS_ID_LENGTH,
+    SERVICENOW_USERNAME_MAX_LENGTH,
     TABLE_USERS,
     USERNAME_MAX_LENGTH,
 )
@@ -38,7 +39,8 @@ if TYPE_CHECKING:
     from app.infrastructure.database.models.servicenow_connection import (
         ServiceNowConnection,
     )
-
+    from app.infrastructure.database.models.user_approval import UserApproval
+    from app.infrastructure.database.models.verification_code import VerificationCode
 
 # ============================================================
 # User Model
@@ -69,6 +71,12 @@ class User(
         index=True,
     )
 
+    servicenow_username: Mapped[str | None] = mapped_column(
+        String(SERVICENOW_USERNAME_MAX_LENGTH),
+        nullable=True,
+        index=True,
+    )
+
     # ============================================================
     # Identity
     # ============================================================
@@ -91,12 +99,19 @@ class User(
         nullable=False,
         index=True,
     )
+
     # ============================================================
     # Authentication
     # ============================================================
 
     password_hash: Mapped[str] = mapped_column(
         String(PASSWORD_HASH_MAX_LENGTH),
+        nullable=False,
+    )
+
+    is_verified: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
         nullable=False,
     )
 
@@ -131,6 +146,18 @@ class User(
     servicenow_connection: Mapped["ServiceNowConnection"] = relationship(
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    verification_codes: Mapped[list["VerificationCode"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+    approvals: Mapped[list["UserApproval"]] = relationship(
+        back_populates="user",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )

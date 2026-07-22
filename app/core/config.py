@@ -8,6 +8,7 @@ from app.core.settings import (
     APISettings,
     ApplicationSettings,
     DatabaseSettings,
+    EmailSettings,
     HTTPSettings,
     LoggingSettings,
     SecuritySettings,
@@ -151,6 +152,13 @@ def _load_settings() -> Settings:
         ),
     )
 
+    email = EmailSettings(
+        provider=get_env("EMAIL_PROVIDER"),
+        resend_api_key=get_env("RESEND_API_KEY"),
+        from_name=get_env("EMAIL_FROM_NAME"),
+        from_email=get_env("EMAIL_FROM_ADDRESS"),
+    )
+
     return Settings(
         application=application,
         ai=ai,
@@ -160,6 +168,7 @@ def _load_settings() -> Settings:
         http=http,
         database=database,
         security=security,
+        email=email,
     )
 
 

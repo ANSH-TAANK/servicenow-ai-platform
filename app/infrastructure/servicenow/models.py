@@ -65,3 +65,27 @@ class TableResponse(BaseModel):
     """
 
     result: dict
+
+
+# ============================================================
+# ServiceNow User
+# ============================================================
+
+
+class ServiceNowUser(BaseModel):
+    """
+    Internal representation of a
+    ServiceNow user.
+    """
+
+    sys_id: str
+
+    username: str
+
+    email: str
+
+    first_name: str | None = None
+
+    last_name: str | None = None
+
+    active: bool = True

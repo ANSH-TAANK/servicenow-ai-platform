@@ -55,6 +55,24 @@ class UserResponse(ResponseModel):
 
 
 # ============================================================
+# Username Availability Response
+# ============================================================
+
+
+class UsernameAvailabilityResponse(ResponseModel):
+    """
+    Username availability information
+    returned to clients.
+    """
+
+    username: str
+
+    available: bool
+
+    suggestions: list[str]
+
+
+# ============================================================
 # Login Response
 # ============================================================
 
@@ -86,3 +104,17 @@ class RefreshTokenResponse(ResponseModel):
     refresh_token: str
 
     token_type: str
+
+
+# ============================================================
+# Message Response
+# ============================================================
+
+
+class MessageResponse(ResponseModel):
+    """
+    Generic response containing
+    a success message.
+    """
+
+    message: str

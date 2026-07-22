@@ -137,3 +137,58 @@ USER_INACTIVE_ERROR = "USER_INACTIVE"
 INVALID_PASSWORD_ERROR = "INVALID_PASSWORD"
 
 INVALID_USERNAME_ERROR = "INVALID_USERNAME"
+
+EMAIL_ALREADY_EXISTS_ERROR = "EMAIL_ALREADY_EXISTS"
+
+USERNAME_ALREADY_EXISTS_ERROR = "USERNAME_ALREADY_EXISTS"
+
+VERIFICATION_CODE_NOT_FOUND_ERROR = "verification_code_not_found"
+
+VERIFICATION_CODE_EXPIRED_ERROR = "verification_code_expired"
+
+VERIFICATION_CODE_INVALID_ERROR = "verification_code_invalid"
+
+VERIFICATION_ATTEMPTS_EXCEEDED_ERROR = "verification_attempts_exceeded"
+
+VERIFICATION_RESEND_LIMIT_EXCEEDED_ERROR = "verification_resend_limit_exceeded"
+
+VERIFICATION_RESEND_TOO_SOON_ERROR = "verification_resend_too_soon"
+
+VERIFICATION_ALREADY_COMPLETED_ERROR = "verification_already_completed"
+
+# ============================================================
+# Verification
+# ============================================================
+
+TABLE_VERIFICATION_CODES = "verification_codes"
+
+OTP_HASH_MAX_LENGTH = 255
+
+VERIFICATION_PURPOSE_MAX_LENGTH = 50
+
+OTP_LENGTH = 6
+
+OTP_EXPIRY_MINUTES = 10
+
+MAX_OTP_VERIFICATION_ATTEMPTS = 5
+
+MAX_OTP_RESEND_ATTEMPTS = 3
+
+OTP_RESEND_COOLDOWN_SECONDS = 60
+
+VERIFICATION_CODE_EXPIRATION_MINUTES = 10
+
+AUTH_USER_NOT_VERIFIED = "AUTH_USER_NOT_VERIFIED"
+
+
+# ============================================================
+# User Approval
+# ============================================================
+
+TABLE_USER_APPROVALS = "user_approvals"
+
+APPROVAL_REASON_MAX_LENGTH = 500
+APPROVED_BY_MAX_LENGTH = 255
+
+
+USER_APPROVAL_PENDING_ERROR = "USER_APPROVAL_PENDING_ERROR"

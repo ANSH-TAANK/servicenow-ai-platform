@@ -16,8 +16,15 @@ from app.application.auth.requests import (
     LoginRequest,
     RefreshTokenRequest,
     RegisterRequest,
+    UpdateUsernameRequest,
+    VerifyEmailRequest,  # NEW
 )
-from app.application.auth.responses import LoginResponse, UserResponse
+from app.application.auth.responses import (
+    LoginResponse,
+    MessageResponse,  # NEW
+    UsernameAvailabilityResponse,
+    UserResponse,
+)
 from app.application.auth.service import AuthenticationService
 from app.core.logging import get_logger
 
@@ -63,6 +70,39 @@ async def register(
     logger.info(
         "User '%s' registered successfully.",
         response.username,
+    )
+
+    return response
+
+
+@router.post(
+    "/verify-email",
+    response_model=MessageResponse,
+    summary="Verify Email",
+    description="Verify a user's email address using the verification code.",
+)
+async def verify_email(
+    request: VerifyEmailRequest,
+    service: AuthenticationService = Depends(
+        get_auth_service,
+    ),
+) -> MessageResponse:
+    """
+    Verify a user's email address.
+    """
+
+    logger.info(
+        "Email verification requested for %s.",
+        request.email,
+    )
+
+    response = await service.verify_email(
+        request,
+    )
+
+    logger.info(
+        "Email verified successfully for %s.",
+        request.email,
     )
 
     return response
@@ -132,7 +172,7 @@ async def oauth2_token(
 
     response = await service.login(
         LoginRequest(
-            email=username,
+            identifier=username,
             password=password,
         ),
     )
@@ -202,6 +242,79 @@ async def get_current_user(
     )
 
     response = await service.get_current_user(
+        current_user_id,
+    )
+
+    return response
+
+
+# ============================================================
+# Username Availability
+# ============================================================
+
+
+@router.get(
+    "/username/availability",
+    response_model=UsernameAvailabilityResponse,
+    summary="Check Username Availability",
+    description="Determine whether a username is available and return suggestions if it is already taken.",
+)
+async def check_username_availability(
+    username: str,
+    service: AuthenticationService = Depends(
+        get_auth_service,
+    ),
+) -> UsernameAvailabilityResponse:
+    """
+    Check whether a username is available.
+    """
+
+    logger.info(
+        "Checking username availability for '%s'.",
+        username,
+    )
+
+    return await service.check_username_availability(
+        username,
+    )
+
+
+# ============================================================
+# Update Username
+# ============================================================
+
+
+@router.patch(
+    "/username",
+    response_model=UserResponse,
+    summary="Update Username",
+    description="Update the authenticated user's platform username.",
+)
+async def update_username(
+    request: UpdateUsernameRequest,
+    current_user_id: UUID = Depends(
+        get_current_user_id,
+    ),
+    service: AuthenticationService = Depends(
+        get_auth_service,
+    ),
+) -> UserResponse:
+    """
+    Update the authenticated user's username.
+    """
+
+    logger.info(
+        "Username update requested by user %s.",
+        current_user_id,
+    )
+
+    response = await service.update_username(
+        user_id=current_user_id,
+        request=request,
+    )
+
+    logger.info(
+        "Username updated successfully for user %s.",
         current_user_id,
     )
 

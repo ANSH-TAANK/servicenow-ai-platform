@@ -12,15 +12,25 @@ This module DOES NOT:
 """
 
 from http import HTTPStatus
+from typing import Any
 
 from app.core.constants import (
+    AUTH_USER_NOT_VERIFIED,
     AUTHENTICATION_ERROR,
+    EMAIL_ALREADY_EXISTS_ERROR,
     INVALID_CREDENTIALS_ERROR,
     INVALID_PASSWORD_ERROR,
     INVALID_USERNAME_ERROR,
-    USER_ALREADY_EXISTS_ERROR,
     USER_INACTIVE_ERROR,
     USER_NOT_FOUND_ERROR,
+    USERNAME_ALREADY_EXISTS_ERROR,
+    VERIFICATION_ALREADY_COMPLETED_ERROR,
+    VERIFICATION_ATTEMPTS_EXCEEDED_ERROR,
+    VERIFICATION_CODE_EXPIRED_ERROR,
+    VERIFICATION_CODE_INVALID_ERROR,
+    VERIFICATION_CODE_NOT_FOUND_ERROR,
+    VERIFICATION_RESEND_LIMIT_EXCEEDED_ERROR,
+    VERIFICATION_RESEND_TOO_SOON_ERROR,
 )
 from app.exceptions.base import BaseApplicationException
 
@@ -29,7 +39,9 @@ from app.exceptions.base import BaseApplicationException
 # ============================================================
 
 
-class AuthenticationError(BaseApplicationException):
+class AuthenticationError(
+    BaseApplicationException,
+):
     """
     Base class for all authentication exceptions.
     """
@@ -40,33 +52,66 @@ class AuthenticationError(BaseApplicationException):
         *,
         error_code: str = AUTHENTICATION_ERROR,
         status_code: HTTPStatus = HTTPStatus.BAD_REQUEST,
+        details: Any | None = None,
     ) -> None:
         super().__init__(
             message=message,
             error_code=error_code,
             status_code=status_code,
+            details=details,
         )
 
 
 # ============================================================
-# User Already Exists
+# Email Already Exists
 # ============================================================
 
 
-class UserAlreadyExistsError(AuthenticationError):
+class EmailAlreadyExistsError(
+    AuthenticationError,
+):
     """
-    Raised when attempting to register
-    an existing user.
+    Raised when an email address
+    already exists.
     """
 
     def __init__(
         self,
-        message: str = "User already exists.",
+        message: str = ("A user with this email already exists."),
     ) -> None:
         super().__init__(
             message=message,
-            error_code=USER_ALREADY_EXISTS_ERROR,
+            error_code=EMAIL_ALREADY_EXISTS_ERROR,
             status_code=HTTPStatus.CONFLICT,
+        )
+
+
+# ============================================================
+# Username Already Exists
+# ============================================================
+
+
+class UsernameAlreadyExistsError(
+    AuthenticationError,
+):
+    """
+    Raised when a username
+    already exists.
+    """
+
+    def __init__(
+        self,
+        *,
+        message: str = ("A user with this username already exists."),
+        suggestions: list[str] | None = None,
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=USERNAME_ALREADY_EXISTS_ERROR,
+            status_code=HTTPStatus.CONFLICT,
+            details={
+                "suggestions": suggestions or [],
+            },
         )
 
 
@@ -175,4 +220,190 @@ class InvalidUsernameError(AuthenticationError):
             message=message,
             error_code=INVALID_USERNAME_ERROR,
             status_code=HTTPStatus.BAD_REQUEST,
+        )
+
+
+# ============================================================
+# Verification Code Not Found
+# ============================================================
+
+
+class VerificationCodeNotFoundError(
+    AuthenticationError,
+):
+    """
+    Raised when a verification code
+    cannot be found.
+    """
+
+    def __init__(
+        self,
+        message: str = "Verification code not found.",
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_CODE_NOT_FOUND_ERROR,
+            status_code=HTTPStatus.NOT_FOUND,
+        )
+
+
+# ============================================================
+# Verification Code Expired
+# ============================================================
+
+
+class VerificationCodeExpiredError(
+    AuthenticationError,
+):
+    """
+    Raised when a verification code
+    has expired.
+    """
+
+    def __init__(
+        self,
+        message: str = "Verification code has expired.",
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_CODE_EXPIRED_ERROR,
+            status_code=HTTPStatus.BAD_REQUEST,
+        )
+
+
+# ============================================================
+# Verification Code Invalid
+# ============================================================
+
+
+class VerificationCodeInvalidError(
+    AuthenticationError,
+):
+    """
+    Raised when an invalid verification
+    code is provided.
+    """
+
+    def __init__(
+        self,
+        message: str = "Invalid verification code.",
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_CODE_INVALID_ERROR,
+            status_code=HTTPStatus.BAD_REQUEST,
+        )
+
+
+# ============================================================
+# Verification Attempts Exceeded
+# ============================================================
+
+
+class VerificationAttemptsExceededError(
+    AuthenticationError,
+):
+    """
+    Raised when the maximum number of
+    verification attempts has been exceeded.
+    """
+
+    def __init__(
+        self,
+        message: str = ("Maximum verification attempts exceeded."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_ATTEMPTS_EXCEEDED_ERROR,
+            status_code=HTTPStatus.TOO_MANY_REQUESTS,
+        )
+
+
+# ============================================================
+# Verification Resend Limit Exceeded
+# ============================================================
+
+
+class VerificationResendLimitExceededError(
+    AuthenticationError,
+):
+    """
+    Raised when the maximum number of
+    verification code resend requests
+    has been exceeded.
+    """
+
+    def __init__(
+        self,
+        message: str = ("Verification resend limit exceeded."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_RESEND_LIMIT_EXCEEDED_ERROR,
+            status_code=HTTPStatus.TOO_MANY_REQUESTS,
+        )
+
+
+# ============================================================
+# Verification Resend Too Soon
+# ============================================================
+
+
+class VerificationResendTooSoonError(
+    AuthenticationError,
+):
+    """
+    Raised when a verification code
+    is requested before the resend
+    cooldown has elapsed.
+    """
+
+    def __init__(
+        self,
+        message: str = ("Please wait before requesting another verification code."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_RESEND_TOO_SOON_ERROR,
+            status_code=HTTPStatus.TOO_MANY_REQUESTS,
+        )
+
+
+# ============================================================
+# Verification Already Completed
+# ============================================================
+
+
+class VerificationAlreadyCompletedError(
+    AuthenticationError,
+):
+    """
+    Raised when the user's email
+    has already been verified.
+    """
+
+    def __init__(
+        self,
+        message: str = ("Email has already been verified."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=VERIFICATION_ALREADY_COMPLETED_ERROR,
+            status_code=HTTPStatus.CONFLICT,
+        )
+
+
+class UserNotVerifiedError(AuthenticationError):
+    """
+    Raised when a user attempts to authenticate
+    before verifying their email address.
+    """
+
+    def __init__(
+        self,
+        message: str = ("Please verify your email address before logging in."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=AUTH_USER_NOT_VERIFIED,
         )
