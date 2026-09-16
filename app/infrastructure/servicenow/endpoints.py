@@ -41,3 +41,9 @@ GROUP = f"{TABLE_API}/sys_user_group"
 # ============================================================
 
 CATEGORY = f"{TABLE_API}/sys_choice"
+
+# ============================================================
+# Approval Request
+# ============================================================
+
+APPROVAL_REQUEST = f"{TABLE_API}/x_2108899_servic_0_approval_request"

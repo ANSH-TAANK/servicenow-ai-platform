@@ -13,15 +13,16 @@ from fastapi import APIRouter, Depends, Form, status
 
 from app.api.dependencies.auth import get_auth_service, get_current_user_id
 from app.application.auth.requests import (
+    AccessRequestRequest,
     LoginRequest,
     RefreshTokenRequest,
     RegisterRequest,
     UpdateUsernameRequest,
-    VerifyEmailRequest,  # NEW
+    VerifyEmailRequest,
 )
+from app.application.auth.responses import MessageResponse  # NEW
 from app.application.auth.responses import (
     LoginResponse,
-    MessageResponse,  # NEW
     UsernameAvailabilityResponse,
     UserResponse,
 )
@@ -316,6 +317,44 @@ async def update_username(
     logger.info(
         "Username updated successfully for user %s.",
         current_user_id,
+    )
+
+    return response
+
+
+# ============================================================
+# Access Request
+# ============================================================
+
+
+@router.post(
+    "/access-request",
+    response_model=MessageResponse,
+    summary="Request Platform Access",
+    description="Submit a manual platform access request for approval.",
+)
+async def access_request(
+    request: AccessRequestRequest,
+    service: AuthenticationService = Depends(
+        get_auth_service,
+    ),
+) -> MessageResponse:
+    """
+    Submit a manual platform access request.
+    """
+
+    logger.info(
+        "Access request submitted for email %s.",
+        request.email,
+    )
+
+    response = await service.access_request(
+        request=request,
+    )
+
+    logger.info(
+        "Access request created successfully for %s.",
+        request.email,
     )
 
     return response

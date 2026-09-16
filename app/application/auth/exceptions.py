@@ -15,12 +15,14 @@ from http import HTTPStatus
 from typing import Any
 
 from app.core.constants import (
+    ACCESS_REQUEST_ALREADY_EXISTS_ERROR,
     AUTH_USER_NOT_VERIFIED,
     AUTHENTICATION_ERROR,
     EMAIL_ALREADY_EXISTS_ERROR,
     INVALID_CREDENTIALS_ERROR,
     INVALID_PASSWORD_ERROR,
     INVALID_USERNAME_ERROR,
+    USER_ALREADY_LINKED_TO_SERVICENOW_ERROR,
     USER_INACTIVE_ERROR,
     USER_NOT_FOUND_ERROR,
     USERNAME_ALREADY_EXISTS_ERROR,
@@ -406,4 +408,48 @@ class UserNotVerifiedError(AuthenticationError):
         super().__init__(
             message=message,
             error_code=AUTH_USER_NOT_VERIFIED,
+        )
+
+
+# ============================================================
+# User Already Linked To ServiceNow
+# ============================================================
+
+
+class UserAlreadyLinkedToServiceNowError(AuthenticationError):
+    """
+    Raised when a ServiceNow-linked user attempts
+    to submit a manual access request.
+    """
+
+    def __init__(
+        self,
+        message: str = ("User is already linked to ServiceNow."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=USER_ALREADY_LINKED_TO_SERVICENOW_ERROR,
+            status_code=HTTPStatus.CONFLICT,
+        )
+
+
+# ============================================================
+# Access Request Already Exists
+# ============================================================
+
+
+class AccessRequestAlreadyExistsError(AuthenticationError):
+    """
+    Raised when a pending access request
+    already exists for the user.
+    """
+
+    def __init__(
+        self,
+        message: str = ("An access request has already been submitted."),
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=ACCESS_REQUEST_ALREADY_EXISTS_ERROR,
+            status_code=HTTPStatus.CONFLICT,
         )

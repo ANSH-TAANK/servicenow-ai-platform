@@ -19,10 +19,13 @@ from pwdlib.exceptions import UnknownHashError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.approval.exceptions import UserApprovalPendingError
+from app.application.approval.integration import ApprovalIntegrationService
 from app.application.approval.service import ApprovalService
 from app.application.auth.exceptions import (
+    AccessRequestAlreadyExistsError,
     EmailAlreadyExistsError,
     InvalidCredentialsError,
+    UserAlreadyLinkedToServiceNowError,
     UserInactiveError,
     UsernameAlreadyExistsError,
     UserNotFoundError,
@@ -33,6 +36,7 @@ from app.application.auth.exceptions import (
     VerificationCodeNotFoundError,
 )
 from app.application.auth.requests import (
+    AccessRequestRequest,
     ForgotPasswordRequest,
     LoginRequest,
     RefreshTokenRequest,
@@ -68,6 +72,7 @@ from app.core.security import (
     verify_password,
     verify_verification_code,
 )
+from app.domain.enums.approval import ApprovalStatus
 from app.domain.verification.enums import VerificationPurpose, VerificationStatus
 from app.infrastructure.database.models.user import User
 from app.infrastructure.database.models.verification_code import VerificationCode
@@ -478,18 +483,117 @@ class AuthenticationService:
             verification,
         )
 
-        approval_service = ApprovalService(
+        integration = ApprovalIntegrationService(
             self._db,
         )
 
-        await approval_service.create_initial_approval(
-            user.id,
+        servicenow_user = integration.find_servicenow_user(
+            email=user.email,
+        )
+
+        if servicenow_user:
+            logger.info(
+                "User %s exists in ServiceNow.",
+                user.email,
+            )
+
+            user.is_servicenow_user = True
+            user.servicenow_sys_id = servicenow_user.sys_id
+            user.servicenow_username = servicenow_user.username
+
+            await self._users.update(
+                user,
+            )
+
+            await integration.create_auto_approval(
+                user_id=user.id,
+            )
+
+            await self._db.commit()
+
+            return MessageResponse(
+                message="Email verified successfully.",
+            )
+
+        logger.info(
+            "User %s does not exist in ServiceNow.",
+            user.email,
         )
 
         await self._db.commit()
 
         return MessageResponse(
-            message="Email verified successfully.",
+            message="JUSTIFICATION_REQUIRED",
+        )
+
+    async def access_request(
+        self,
+        request: AccessRequestRequest,
+    ) -> MessageResponse:
+        """
+        Submit a manual platform access request.
+        """
+
+        logger.info(
+            "Processing access request for email %s.",
+            request.email,
+        )
+
+        user = await self._get_user_by_identifier(
+            request.email,
+        )
+
+        if not user.is_verified:
+            raise UserNotVerifiedError()
+
+        if user.is_servicenow_user:
+            logger.warning(
+                "Access request rejected because user %s is already linked to ServiceNow.",
+                user.id,
+            )
+
+            raise UserAlreadyLinkedToServiceNowError()
+
+        approval_service = ApprovalService(
+            self._db,
+        )
+
+        latest_approval = await approval_service.get_latest_approval(
+            user.id,
+        )
+
+        if (
+            latest_approval is not None
+            and latest_approval.status == ApprovalStatus.PENDING
+        ):
+            logger.warning(
+                "Duplicate access request blocked for user %s.",
+                user.id,
+            )
+
+            raise AccessRequestAlreadyExistsError()
+
+        integration = ApprovalIntegrationService(
+            self._db,
+        )
+
+        await integration.create_manual_approval(
+            user_id=user.id,
+            full_name=user.full_name,
+            username=user.username,
+            email=user.email,
+            access_justification=request.justification,
+        )
+
+        await self._db.commit()
+
+        logger.info(
+            "Manual access request submitted successfully for user %s.",
+            user.id,
+        )
+
+        return MessageResponse(
+            message="Access request submitted successfully.",
         )
 
     # ============================================================

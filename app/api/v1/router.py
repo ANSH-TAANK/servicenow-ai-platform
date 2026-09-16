@@ -7,6 +7,7 @@ Purpose:
 
 from fastapi import APIRouter
 
+from app.api.v1.endpoints.approval import router as approval_router
 from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.endpoints.health import router as health_router
 from app.api.v1.endpoints.identity import router as identity_router
@@ -21,11 +22,7 @@ router = APIRouter(
 )
 
 router.include_router(
-    health_router,
-)
-
-router.include_router(
-    incident_router,
+    approval_router,
 )
 
 router.include_router(
@@ -33,5 +30,13 @@ router.include_router(
 )
 
 router.include_router(
+    health_router,
+)
+
+router.include_router(
     identity_router,
+)
+
+router.include_router(
+    incident_router,
 )

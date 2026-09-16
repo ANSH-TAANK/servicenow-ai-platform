@@ -5,6 +5,7 @@ Purpose:
 - Store user approval records.
 - Track the approval lifecycle of a user.
 - Preserve approval history.
+- Track synchronization with ServiceNow.
 
 This module DOES NOT:
 - Approve users.
@@ -16,16 +17,19 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String
+from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.constants import (
     APPROVAL_REASON_MAX_LENGTH,
     APPROVED_BY_MAX_LENGTH,
+    SERVICENOW_NUMBER_MAX_LENGTH,
+    SERVICENOW_SYNC_ERROR_MAX_LENGTH,
+    SERVICENOW_SYS_ID_LENGTH,
     TABLE_USER_APPROVALS,
     TABLE_USERS,
 )
-from app.domain.enums.approval import ApprovalStatus, ApprovalType
+from app.domain.enums.approval import ApprovalStatus, ApprovalType, ServiceNowSyncStatus
 from app.infrastructure.database.base import Base
 from app.infrastructure.database.mixins import TimestampMixin, UUIDMixin
 
@@ -63,7 +67,7 @@ class UserApproval(
     )
 
     # ============================================================
-    # Approval
+    # Business Approval
     # ============================================================
 
     status: Mapped[ApprovalStatus] = mapped_column(
@@ -109,6 +113,43 @@ class UserApproval(
     rejection_reason: Mapped[str | None] = mapped_column(
         String(APPROVAL_REASON_MAX_LENGTH),
         nullable=True,
+    )
+
+    # ============================================================
+    # ServiceNow Synchronization
+    # ============================================================
+
+    servicenow_sync_status: Mapped[ServiceNowSyncStatus] = mapped_column(
+        Enum(
+            ServiceNowSyncStatus,
+            native_enum=False,
+            validate_strings=True,
+        ),
+        default=ServiceNowSyncStatus.PENDING,
+        nullable=False,
+        index=True,
+    )
+
+    servicenow_sys_id: Mapped[str | None] = mapped_column(
+        String(SERVICENOW_SYS_ID_LENGTH),
+        nullable=True,
+        unique=True,
+    )
+
+    servicenow_number: Mapped[str | None] = mapped_column(
+        String(SERVICENOW_NUMBER_MAX_LENGTH),
+        nullable=True,
+    )
+
+    servicenow_sync_error: Mapped[str | None] = mapped_column(
+        String(SERVICENOW_SYNC_ERROR_MAX_LENGTH),
+        nullable=True,
+    )
+
+    retry_count: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        nullable=False,
     )
 
     # ============================================================

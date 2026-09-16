@@ -187,6 +187,17 @@ class EmailSettings(ConfigModel):
 
 
 # ============================================================
+# Webhook Configuration
+# ============================================================
+
+
+class WebhookSettings(ConfigModel):
+    """Webhook authentication configuration."""
+
+    api_key: str
+
+
+# ============================================================
 # Root Settings
 # ============================================================
 
@@ -207,6 +218,7 @@ class Settings(BaseSettings):
     database: DatabaseSettings
     security: SecuritySettings
     email: EmailSettings
+    webhook: WebhookSettings
 
     model_config = SettingsConfigDict(
         frozen=True,

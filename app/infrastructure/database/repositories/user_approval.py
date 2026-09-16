@@ -116,3 +116,30 @@ class UserApprovalRepository(
         result = await self._db.execute(statement)
 
         return list(result.scalars().all())
+
+    # ============================================================
+    # Get By User And ServiceNow Number
+    # ============================================================
+
+    async def get_by_user_and_servicenow_number(
+        self,
+        user_id: uuid.UUID,
+        approval_number: str,
+    ) -> UserApproval | None:
+        """
+        Retrieve an approval record using the user ID
+        and the associated ServiceNow approval number.
+        """
+
+        statement = select(
+            UserApproval,
+        ).where(
+            UserApproval.user_id == user_id,
+            UserApproval.servicenow_number == approval_number,
+        )
+
+        result = await self._db.execute(
+            statement,
+        )
+
+        return result.scalar_one_or_none()

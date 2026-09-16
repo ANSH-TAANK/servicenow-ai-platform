@@ -13,6 +13,14 @@ This module SHOULD NOT contain:
 """
 
 # ============================================================
+# Global Error Messages
+# ============================================================
+
+INTERNAL_SERVER_ERROR_CODE = "INTERNAL_SERVER_ERROR"
+
+INTERNAL_SERVER_ERROR_MESSAGE = "An unexpected error occurred."
+
+# ============================================================
 # Database Field Lengths
 # ============================================================
 
@@ -180,7 +188,6 @@ VERIFICATION_CODE_EXPIRATION_MINUTES = 10
 
 AUTH_USER_NOT_VERIFIED = "AUTH_USER_NOT_VERIFIED"
 
-
 # ============================================================
 # User Approval
 # ============================================================
@@ -188,7 +195,60 @@ AUTH_USER_NOT_VERIFIED = "AUTH_USER_NOT_VERIFIED"
 TABLE_USER_APPROVALS = "user_approvals"
 
 APPROVAL_REASON_MAX_LENGTH = 500
+
 APPROVED_BY_MAX_LENGTH = 255
 
+SERVICENOW_NUMBER_MAX_LENGTH = 50
+
+SERVICENOW_SYNC_ERROR_MAX_LENGTH = 1000
 
 USER_APPROVAL_PENDING_ERROR = "USER_APPROVAL_PENDING_ERROR"
+
+USER_ALREADY_LINKED_TO_SERVICENOW_ERROR = "USER_ALREADY_LINKED_TO_SERVICENOW_ERROR"
+
+ACCESS_REQUEST_ALREADY_EXISTS_ERROR = "ACCESS_REQUEST_ALREADY_EXISTS_ERROR"
+
+# ============================================================
+# Approval
+# ============================================================
+
+SERVICENOW_APPROVER = "ServiceNow"
+
+APPROVAL_NOT_FOUND_MESSAGE = "Approval record not found."
+
+APPROVAL_ALREADY_PROCESSED_MESSAGE = "Approval has already been processed."
+
+APPROVED_CALLBACK_MISSING_USER_SYS_ID_MESSAGE = (
+    "Approved callback must include ServiceNow user sys_id."
+)
+
+REJECTED_CALLBACK_MISSING_REASON_MESSAGE = (
+    "Rejected callback must include a rejection reason."
+)
+
+# ============================================================
+# Approval Error Codes
+# ============================================================
+
+APPROVAL_NOT_FOUND_ERROR = "APPROVAL_NOT_FOUND"
+
+APPROVAL_ALREADY_PROCESSED_ERROR = "APPROVAL_ALREADY_PROCESSED"
+
+INVALID_APPROVAL_CALLBACK_ERROR = "INVALID_APPROVAL_CALLBACK"
+
+# ============================================================
+# Approval Success Messages
+# ============================================================
+
+APPROVAL_CALLBACK_SUCCESS_MESSAGE = "Approval callback processed successfully."
+
+
+# ============================================================
+# Webhook Security
+# ============================================================
+
+WEBHOOK_SIGNATURE_HEADER = "X-ServiceNow-Signature"
+
+WEBHOOK_TIMESTAMP_HEADER = "X-ServiceNow-Timestamp"
+
+WEBHOOK_TIMESTAMP_TOLERANCE_SECONDS = 300

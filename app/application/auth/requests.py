@@ -239,3 +239,31 @@ class ResetPasswordRequest(RequestModel):
         min_length=PASSWORD_MIN_LENGTH,
         max_length=PASSWORD_MAX_LENGTH,
     )
+
+
+# ============================================================
+# Access Request
+# ============================================================
+
+
+class AccessRequestRequest(RequestModel):
+    """
+    Request body for submitting
+    a platform access request.
+    """
+
+    email: EmailStr = Field(
+        description="Verified email address of the platform user.",
+        examples=[
+            "john.doe@example.com",
+        ],
+    )
+
+    justification: str = Field(
+        min_length=10,
+        max_length=1000,
+        description="Business justification for requesting platform access.",
+        examples=[
+            "I need access to manage incidents and fulfill my assigned responsibilities.",
+        ],
+    )

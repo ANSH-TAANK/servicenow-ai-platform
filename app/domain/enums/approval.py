@@ -40,3 +40,25 @@ class ApprovalType(str, Enum):
 
     MANUAL = "manual"
     AUTO = "auto"
+
+
+# ============================================================
+# ServiceNow Sync Status
+# ============================================================
+
+
+class ServiceNowSyncStatus(str, Enum):
+    """
+    Represents synchronization status between
+    PostgreSQL and ServiceNow.
+    """
+
+    PENDING = "pending"
+
+    SYNCED = "synced"
+
+    FAILED = "failed"
+
+    RETRYING = "retrying"
+
+    NOT_REQUIRED = "not_required"

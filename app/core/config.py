@@ -14,6 +14,7 @@ from app.core.settings import (
     SecuritySettings,
     ServiceNowSettings,
     Settings,
+    WebhookSettings,
 )
 
 # ============================================================
@@ -159,6 +160,10 @@ def _load_settings() -> Settings:
         from_email=get_env("EMAIL_FROM_ADDRESS"),
     )
 
+    webhook = WebhookSettings(
+        api_key=get_env("WEBHOOK_API_KEY"),
+    )
+
     return Settings(
         application=application,
         ai=ai,
@@ -169,6 +174,7 @@ def _load_settings() -> Settings:
         database=database,
         security=security,
         email=email,
+        webhook=webhook,
     )
 
 

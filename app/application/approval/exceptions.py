@@ -8,7 +8,14 @@ Purpose:
 
 from http import HTTPStatus
 
-from app.core.constants import USER_APPROVAL_PENDING_ERROR
+from app.core.constants import (
+    APPROVAL_ALREADY_PROCESSED_ERROR,
+    APPROVAL_ALREADY_PROCESSED_MESSAGE,
+    APPROVAL_NOT_FOUND_ERROR,
+    APPROVAL_NOT_FOUND_MESSAGE,
+    INVALID_APPROVAL_CALLBACK_ERROR,
+    USER_APPROVAL_PENDING_ERROR,
+)
 from app.exceptions.base import BaseApplicationException
 
 # ============================================================
@@ -55,4 +62,75 @@ class UserApprovalPendingError(
         super().__init__(
             message=message,
             error_code=USER_APPROVAL_PENDING_ERROR,
+        )
+
+
+# ============================================================
+# Approval Not Found
+# ============================================================
+
+
+class ApprovalNotFoundError(
+    ApprovalError,
+):
+    """
+    Raised when an approval record cannot be found.
+    """
+
+    def __init__(
+        self,
+        message: str = APPROVAL_NOT_FOUND_MESSAGE,
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=APPROVAL_NOT_FOUND_ERROR,
+            status_code=HTTPStatus.NOT_FOUND,
+        )
+
+
+# ============================================================
+# Approval Already Processed
+# ============================================================
+
+
+class ApprovalAlreadyProcessedError(
+    ApprovalError,
+):
+    """
+    Raised when an approval callback is received
+    for an approval that has already been processed.
+    """
+
+    def __init__(
+        self,
+        message: str = APPROVAL_ALREADY_PROCESSED_MESSAGE,
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=APPROVAL_ALREADY_PROCESSED_ERROR,
+            status_code=HTTPStatus.CONFLICT,
+        )
+
+
+# ============================================================
+# Invalid Approval Callback
+# ============================================================
+
+
+class InvalidApprovalCallbackError(
+    ApprovalError,
+):
+    """
+    Raised when an approval callback payload
+    is invalid.
+    """
+
+    def __init__(
+        self,
+        message: str,
+    ) -> None:
+        super().__init__(
+            message=message,
+            error_code=INVALID_APPROVAL_CALLBACK_ERROR,
+            status_code=HTTPStatus.BAD_REQUEST,
         )

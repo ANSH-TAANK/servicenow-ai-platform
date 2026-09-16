@@ -177,6 +177,8 @@ class BaseRepository(Generic[T]):
         """
 
         try:
+            self._db.add(entity)  # <-- Add this
+
             await self._db.flush()
 
             await self._db.refresh(entity)
