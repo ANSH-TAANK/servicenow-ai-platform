@@ -185,6 +185,10 @@ class EmailSettings(ConfigModel):
 
     from_email: str
 
+    test_mode: bool
+
+    test_recipient: str
+
 
 # ============================================================
 # Webhook Configuration

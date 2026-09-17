@@ -2,11 +2,13 @@
 Authentication Service
 
 Purpose:
+
 - Handle authentication business logic.
 - Coordinate validation, repositories, and security.
 - Authenticate platform users.
 
 This module DOES NOT:
+
 - Define API routes.
 - Access HTTP requests directly.
 - Call ServiceNow APIs.
@@ -18,7 +20,6 @@ from uuid import UUID
 from pwdlib.exceptions import UnknownHashError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.approval.exceptions import UserApprovalPendingError
 from app.application.approval.integration import ApprovalIntegrationService
 from app.application.approval.service import ApprovalService
 from app.application.auth.exceptions import (
@@ -37,15 +38,11 @@ from app.application.auth.exceptions import (
 )
 from app.application.auth.requests import (
     AccessRequestRequest,
-    ForgotPasswordRequest,
     LoginRequest,
     RefreshTokenRequest,
     RegisterRequest,
-    ResendVerificationRequest,
-    ResetPasswordRequest,
     UpdateUsernameRequest,
     VerifyEmailRequest,
-    VerifyResetOTPRequest,
 )
 from app.application.auth.responses import (
     LoginResponse,
@@ -80,8 +77,11 @@ from app.infrastructure.database.repositories.user import UserRepository
 from app.infrastructure.database.repositories.verification_code_repository import (
     VerificationCodeRepository,
 )
+from app.infrastructure.email.models import EmailMessage
+from app.infrastructure.email.service import EmailService
 
 logger = get_logger(__name__)
+
 
 # ============================================================
 # Authentication Service
@@ -93,30 +93,28 @@ class AuthenticationService:
     Handles authentication business logic.
     """
 
-    # ============================================================
+    # ========================================================
     # Constructor
-    # ============================================================
+    # ========================================================
 
     def __init__(
         self,
         db: AsyncSession,
+        email_service: EmailService,
     ) -> None:
         """
         Initialize the authentication service.
         """
 
         self._db = db
-        self._users = UserRepository(
-            db,
-        )
-        self._verification_codes = VerificationCodeRepository(
-            db,
-        )
+        self._email_service = email_service
+        self._users = UserRepository(db)
+        self._verification_codes = VerificationCodeRepository(db)
         self._username_generator = UsernameSuggestionGenerator()
 
-    # ============================================================
+    # ========================================================
     # Public Methods
-    # ============================================================
+    # ========================================================
 
     async def register(
         self,
@@ -163,9 +161,8 @@ class AuthenticationService:
         verification_code = generate_verification_code()
 
         logger.info(
-            "Email verification code for %s: %s",
+            "Email verification code for %s.",
             user.email,
-            verification_code,
         )
 
         verification = VerificationCode(
@@ -183,6 +180,23 @@ class AuthenticationService:
         )
 
         await self._db.commit()
+
+        email_message = EmailMessage(
+            to_email=user.email,
+            subject="Verify your ServiceNow AI Platform account",
+            template="verification.html",
+            context={
+                "full_name": user.full_name,
+                "otp": verification_code,
+                "expiry_minutes": str(
+                    VERIFICATION_CODE_EXPIRATION_MINUTES,
+                ),
+            },
+        )
+
+        await self._email_service.send_email(
+            email_message,
+        )
 
         return UserResponse.model_validate(
             user,
@@ -225,15 +239,6 @@ class AuthenticationService:
 
         if not user.is_verified:
             raise UserNotVerifiedError()
-
-        approval_service = ApprovalService(
-            self._db,
-        )
-
-        if not await approval_service.can_user_login(
-            user.id,
-        ):
-            raise UserApprovalPendingError()
 
         if not password_valid:
             raise InvalidCredentialsError(
@@ -325,7 +330,6 @@ class AuthenticationService:
         if await self._username_exists(
             username,
         ):
-
             suggestions = await self._find_available_usernames(
                 username,
             )
@@ -465,6 +469,7 @@ class AuthenticationService:
             user,
             VerificationPurpose.EMAIL_VERIFICATION,
         )
+
         self._ensure_verification_not_completed(
             verification,
         )
@@ -472,6 +477,7 @@ class AuthenticationService:
         self._ensure_verification_not_expired(
             verification,
         )
+
         if not verify_verification_code(
             request.verification_code,
             verification.code_hash,
@@ -596,9 +602,9 @@ class AuthenticationService:
             message="Access request submitted successfully.",
         )
 
-    # ============================================================
+    # ========================================================
     # Private Methods
-    # ============================================================
+    # ========================================================
 
     def _calculate_verification_expiration(
         self,
@@ -699,7 +705,6 @@ class AuthenticationService:
         if await self._username_exists(
             username,
         ):
-
             suggestions = await self._find_available_usernames(
                 username,
             )

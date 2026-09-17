@@ -18,10 +18,12 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.dependencies.email import get_email_service
 from app.application.auth.service import AuthenticationService
 from app.core.constants import JWT_SUBJECT
 from app.core.security import decode_access_token
 from app.infrastructure.database.session import get_db
+from app.infrastructure.email.service import EmailService
 
 # ============================================================
 # OAuth2 Bearer Scheme
@@ -38,12 +40,16 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 async def get_auth_service(
     db: AsyncSession = Depends(get_db),
+    email_service: EmailService = Depends(get_email_service),
 ) -> AuthenticationService:
     """
     Provide an authentication service.
     """
 
-    return AuthenticationService(db)
+    return AuthenticationService(
+        db=db,
+        email_service=email_service,
+    )
 
 
 # ============================================================

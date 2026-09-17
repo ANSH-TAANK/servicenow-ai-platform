@@ -158,6 +158,12 @@ def _load_settings() -> Settings:
         resend_api_key=get_env("RESEND_API_KEY"),
         from_name=get_env("EMAIL_FROM_NAME"),
         from_email=get_env("EMAIL_FROM_ADDRESS"),
+        test_mode=get_env(
+            "EMAIL_TEST_MODE",
+            default="false",
+            cast=bool,
+        ),
+        test_recipient=get_env("EMAIL_TEST_RECIPIENT"),
     )
 
     webhook = WebhookSettings(

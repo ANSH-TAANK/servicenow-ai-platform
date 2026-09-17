@@ -46,6 +46,7 @@ class TestUserRepository:
             username=f"user_{suffix}",
             full_name=f"Test User {suffix}",
             email=f"user_{suffix}@example.com",
+            password_hash="test_password_hash",
             is_servicenow_user=False,
         )
 

@@ -2,6 +2,7 @@
 Application Entry Point
 
 Purpose:
+
 - Create the FastAPI application.
 - Configure the application.
 - Register all application components.
@@ -20,6 +21,7 @@ from app.exceptions.handlers import register_exception_handlers
 
 logger = get_logger(__name__)
 
+
 # ============================================================
 # Application Factory
 # ============================================================
@@ -36,109 +38,80 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title=settings.application.name,
-        summary="Enterprise AI-powered ServiceNow Incident Management Platform.",
+        summary=(
+            "Enterprise AI-powered ServiceNow platform for "
+            "intelligent incident management and secure enterprise integration."
+        ),
         description="""
-## Overview
+## ServiceNow AI Platform
 
-An enterprise-grade platform that automates ServiceNow incident creation
-using Large Language Models (LLMs). The platform is designed for
-reliability, extensibility, maintainability, and production deployment.
+Enterprise backend platform combining **AI-powered incident processing**,
+**ServiceNow integration**, and **secure enterprise identity management**.
 
----
+### Version 1 — AI & ServiceNow Foundation
 
-## Core Capabilities
+Version 1 established the core platform with:
 
-### 🤖 AI-Powered Incident Processing
-
-Natural language understanding to extract structured incident information
-from unstructured user requests, reducing manual effort and accelerating
-incident resolution.
-
-### 🎯 Intelligent Classification
-
-Automatic prediction of:
-
-- Category
-- Subcategory
-- Assignment Group
-- Impact
-- Urgency
-
-using AI models combined with business rules.
-
-### 🔄 Multi-Provider AI Support
-
-Pluggable AI provider architecture supporting:
-
-- Google Gemini
-- Ollama
-- Rule Engine (Automatic Fallback)
-
-allowing organizations to select providers based on performance,
-privacy, compliance, or infrastructure requirements.
-
-### 🔌 ServiceNow REST API Integration
-
-Direct integration with ServiceNow REST APIs for:
-
+- AI-powered incident processing
+- Intelligent incident classification
+- Google Gemini integration
+- Ollama integration
+- Rule Engine fallback
+- Automatic AI provider failover
+- ServiceNow REST API integration
 - Incident creation
-- Incident updates
-- Status synchronization
-- Enterprise workflow automation.
-
----
-
-## AI Failover Strategy
-
-Gemini
-↓
-
-Ollama
-↓
-
-Rule Engine
-
-If one provider becomes unavailable, the platform automatically switches
-to the next provider without interrupting the incident creation workflow.
-
----
-
-## Architecture
-
-Built using modern software engineering practices including:
-
 - Clean Architecture
-- SOLID Principles
-- Domain-Driven Design (DDD)
+- SOLID principles
 - Dependency Injection
-- Strategy Pattern
-- Provider Pattern
-- Structured Exception Handling
-- Request Validation
-- Strongly Typed Data Models
+- Async backend architecture
+- PostgreSQL persistence
 
-The platform is organized into independent layers to maximize
-testability, maintainability, and scalability.
+### Version 2 — Authentication & Enterprise Identity
 
----
+Version 2 builds on the Version 1 foundation with:
 
-## Future Roadmap
+- User registration and authentication
+- JWT-based access control
+- Secure password hashing
+- Email verification
+- Resend email integration
+- ServiceNow `sys_user` verification
+- Automatic enterprise approval
+- Manual approval workflow
+- ServiceNow user provisioning
+- Webhook-based identity linking
+- Protected incident creation
+- Enterprise identity mapping
+- Incident confirmation emails
 
-- LangGraph Agentic AI
+### Version 3 — AI Copilot
+
+The next stage extends the existing AI foundation toward:
+
+- AI Copilot
+- Context-aware ServiceNow assistance
+- Knowledge Base integration
 - Retrieval-Augmented Generation (RAG)
-- Human-in-the-loop Validation
-- Knowledge Base Integration
-- Multi-Agent Collaboration
-- Authentication & Role-Based Access Control (RBAC)
-- Kubernetes Deployment
-- Distributed Tracing
-- Metrics & Observability
-- AI Analytics Dashboard
+- Agentic AI workflows
+- Human-in-the-loop automation
+- Multi-agent orchestration
 
----
+### Technology Stack
 
-Built using Clean Architecture, SOLID Principles, and enterprise software
-engineering best practices.
+**FastAPI · Python · PostgreSQL · SQLAlchemy · Alembic · ServiceNow ·
+Google Gemini · Ollama · JWT · Resend**
+
+### Current Release
+
+**Platform Version:** v0.2.0
+
+**Platform Milestone:** Version 2
+
+**API Version:** v1
+
+**Base Path:** `/api/v1`
+
+Use the endpoint groups below to explore the available APIs.
 """,
         version=settings.application.version,
         contact={
